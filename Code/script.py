@@ -3,6 +3,43 @@ def gblF_Main():
 	Main_screen_ins, Main_clock_ins, Main_info_ary = setup_pygame(size, 'Gravity Game - Main Menu', True)
 	# Screen size is (700, 500)
 
+	class MainC_point():
+		def __init__(self, info_ary, coords_ary, component_ary, boundaries_2dA=[[0  ,0  ],[700,500]]):
+			self.screen_ins,     self.screenSize_ary = info_ary[0],      info_ary[1]
+			self.x_flt,          self.y_flt          = coords_ary[0],    coords_ary[1] # x_flt and y_flt are Cartesian coordinates.
+			self.xComponent_flt, self.yComponent_flt = component_ary[0], component_ary[1]
+			self.boundaries_2dA                      = boundaries_2dA
+			self.colour_tup                          = RED
+
+		def draw(self):
+			coords = self.convertCoords([self.x_flt, self.y_flt])
+			pygame.draw.circle(self.screen_ins, self.colour_tup, [int(coords[0]),int(coords[1])], 5)
+			self.move()
+			self.checkBoundary()
+
+		def move(self):
+			self.x_flt += self.xComponent_flt
+			self.y_flt += self.yComponent_flt
+
+		def convertCoords(self, coords_ary):
+			return [coords_ary[0], (self.screenSize_ary[1]-coords_ary[1])]
+
+		def checkBoundary(self):
+			coords = self.convertCoords([self.x_flt, self.y_flt])
+			if coords[0] > self.boundaries_2dA[1][0]:
+				self.x_flt = self.convertCoords(self.boundaries_2dA[1])[0]
+				self.xComponent_flt *= -1
+			elif coords[0] < self.boundaries_2dA[0][0]:
+				self.x_flt = self.convertCoords(self.boundaries_2dA[0])[0]
+				self.xComponent_flt *= -1
+			elif coords[1] < self.boundaries_2dA[0][1]:
+				self.y_flt = self.convertCoords(self.boundaries_2dA[0])[1]
+				self.yComponent_flt *= -1
+			elif coords[1] > self.boundaries_2dA[1][1]:
+				self.y_flt = self.convertCoords(self.boundaries_2dA[1])[1]
+				self.yComponent_flt *= -1
+
+
 	def MainF_drawStartMenu():
 		# Define inputs
 		drawStartMenu_inputs_dic = {
@@ -18,6 +55,8 @@ def gblF_Main():
 		'Load Level'     : MainF_loadLevel,
 		'Level Designer' : MainF_levelDesigner,
 		}
+
+		
 
 		# Keep looping until break
 		while True:
@@ -36,6 +75,9 @@ def gblF_Main():
 							drawStartMenu_buttonFunctions_dic[key]()
 						except:
 							pass
+
+			
+
 			flip()
 			Main_clock_ins.tick(60)
 
@@ -53,6 +95,7 @@ def gblF_Main():
 		tutorial_buttonFunctions_dic = {
 		'Menu' : gblF_Main,
 		}
+
 
 		while True:
 			for event in pygame.event.get():
