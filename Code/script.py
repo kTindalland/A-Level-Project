@@ -1,4 +1,7 @@
 from tmtu2_5_0 import *
+import sys
+from math import sqrt
+from random import choice
 def gblF_Main():
 	Main_screen_ins, Main_clock_ins, Main_info_ary = setup_pygame(size, 'Gravity Game - Main Menu', True)
 	# Screen size is (700, 500)
@@ -132,28 +135,76 @@ def gblF_Main():
 		pass
 
 	def MainF_levelDesigner():
+
+		# Items tab
+		def levelDesignerF_drawItemsTab():
+			for key, value in levelDesigner_inputs_dic['Items'].items():
+				value.draw(key)
+
+		# Text tab
+		def levelDesignerF_drawTextTab():
+			pass
+
+		def levelDesignerF_delFunc():
+			for key, value in levelDesigner_inputs_dic['Items'].items():
+				value.state = False
+
+
 		levelDesigner_screen_ins, levelDesigner_clock_ins, levelDesigner_info_ary = setup_pygame((900,550), 'Gravity Game - Level Designer', True)
 
 		levelDesigner_inputs_dic = {
 		'Toggle_button' : {
-			'Menu' : Toggle_button(levelDesigner_info_ary, [275,0], [150,50], [False, GREEN, RED]),
+			'Menu'   : Toggle_button(levelDesigner_info_ary, [275,0], [150,50], [False, GREEN, RED]),
+			'Delete' : Toggle_button(levelDesigner_info_ary, [0,0],   [150,50], [False, GREEN, RED]),
+			'Save'   : Toggle_button(levelDesigner_info_ary, [550,0], [150,50], [False, GREEN, RED]),
+			'Items'  : Toggle_button(levelDesigner_info_ary, [725,0], [75 ,50], [True , GREEN, RED]),
+			'Text'   : Toggle_button(levelDesigner_info_ary, [800,0], [75 ,50], [False, GREEN, RED]),
 			},
+		'Items'         : {
+			'Spawn Box' : Toggle_button(levelDesigner_info_ary, [725, 75],  [150, 50], [False, GREEN, RED]),
+			'Well'      : Toggle_button(levelDesigner_info_ary, [725, 150], [150, 50], [False, GREEN, RED]),
+			'Hori Wall' : Toggle_button(levelDesigner_info_ary, [725, 225], [150, 50], [False, GREEN, RED]),
+			'Verti Wall': Toggle_button(levelDesigner_info_ary, [725, 300], [150, 50], [False, GREEN, RED]),
+			}
 		}
 
 		levelDesigner_buttonFunctions_dic = {
-		'Menu' : gblF_Main,
+		'Menu'  : gblF_Main,
+		'Delete': levelDesignerF_delFunc,
 		}
+
 
 		while True:
 			for event in pygame.event.get():
-				for key, value in levelDesigner_inputs_dic['Toggle_button'].items():
-					value.detect(event)
+				for key, value in levelDesigner_inputs_dic['Toggle_button'].items(): # Detection for constant buttons
+					if value.detect(event) and ((key == 'Items') or (key == 'Text')): # If an input is pressed and is either the Items or Text button, run code
+						if levelDesigner_inputs_dic['Toggle_button']['Items'].state == levelDesigner_inputs_dic['Toggle_button']['Text'].state: # If both buttons are the same state
+							levelDesigner_inputs_dic['Toggle_button']['Items'].state = False # Set both buttons to off
+							levelDesigner_inputs_dic['Toggle_button']['Text'].state  = False
+							levelDesigner_inputs_dic['Toggle_button'][key].state     = True # Set clicked button to on
+
+				if levelDesigner_inputs_dic['Toggle_button']['Items'].state: # Only detect these buttons while on Items tab
+					for key, value in levelDesigner_inputs_dic['Items'].items():
+						if value.detect(event):
+							for ckey, cvalue in levelDesigner_inputs_dic['Items'].items():
+								cvalue.state = False
+								levelDesigner_inputs_dic['Toggle_button']['Delete'].state = False
+							value.state = True
+
+
+
 				if event.type == pygame.QUIT:
 					pygame.quit()
 
 			
 			levelDesigner_screen_ins.fill(GREY_1)
 
+			# Drawing lines
+			pygame.draw.line(levelDesigner_screen_ins, BLACK, (0, 50),(700, 50),3)
+			pygame.draw.line(levelDesigner_screen_ins, BLACK,(700, 0), (700, 550),3)
+			pygame.draw.rect(levelDesigner_screen_ins, BLACK, (0,0,900,550), 3)
+
+			# Drawing buttons and adding functionality
 			for key, value in levelDesigner_inputs_dic['Toggle_button'].items():
 				value.draw(key)
 				if value.state == True:
@@ -161,6 +212,11 @@ def gblF_Main():
 						levelDesigner_buttonFunctions_dic[key]()
 					except:
 						pass
+
+			if levelDesigner_inputs_dic['Toggle_button']['Items'].state  == True:
+				levelDesignerF_drawItemsTab()
+			else:
+				levelDesignerF_drawTextTab()
 
 
 
