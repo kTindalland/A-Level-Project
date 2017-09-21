@@ -42,6 +42,23 @@ def gblF_Main():
 				self.y_flt = self.convertCoords(self.boundaries_2dA[1])[1]
 				self.yComponent_flt *= -1
 
+	class MainC_well():
+		def __init__(self, info_ary, coords_ary, radius_int, strength_flt):
+			self.screen_ins,     self.screenSize_ary = info_ary[0],      info_ary[1]
+			self.x_int, self.y_int = coords_ary[0], coords_ary[1]
+			self.rad_int           = radius_int
+			self.strength_flt      = strength_flt
+
+		def convertCoords(self, coords_ary):
+			return [coords_ary[0], (self.screenSize_ary[1]-coords_ary[1])]
+
+		def draw(self):
+			coords = self.convertCoords([self.x_int,self.y_int])
+			pygame.draw.circle(self.screen_ins, BLACK, [int(coords[0]),int(coords[1])], self.radius_int)
+			if self.strength_flt < 1.0:
+				self.strength_flt = 1.0
+			pygame.draw.circle(self.screen_ins, BLACK, [int(coords[0]),int(coords[1])], self.strength_flt, 1)
+
 
 	def MainF_drawStartMenu():
 		# Define inputs
@@ -59,7 +76,7 @@ def gblF_Main():
 		'Level Designer' : MainF_levelDesigner,
 		}
 
-		
+		ayy = MainC_well(Main_info_ary, )
 
 		# Keep looping until break
 		while True:
@@ -145,6 +162,7 @@ def gblF_Main():
 		def levelDesignerF_drawTextTab():
 			pass
 
+		# This runs when the delete button is hit
 		def levelDesignerF_delFunc():
 			for key, value in levelDesigner_inputs_dic['Items'].items():
 				value.state = False
